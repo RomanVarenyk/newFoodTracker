@@ -1,3 +1,11 @@
+//
+//  GoogleImageService.swift
+//  newFoodTracker
+//
+//  Created by Roman Bystriakov on 26/5/25.
+//
+
+
 import Foundation
 
 /// Simple stub to search Google Custom Search for recipe images.

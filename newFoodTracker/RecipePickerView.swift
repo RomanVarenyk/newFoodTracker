@@ -1,3 +1,11 @@
+//
+//  RecipePickerView.swift
+//  newFoodTracker
+//
+//  Created by Roman Bystriakov on 26/5/25.
+//
+
+
 import SwiftUI
 
 /// Presents all recipes for the user to pick one.

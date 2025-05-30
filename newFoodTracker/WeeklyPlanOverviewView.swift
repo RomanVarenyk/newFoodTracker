@@ -1,4 +1,5 @@
 // WeeklyPlanOverviewView.swift
+// newFoodTracker
 
 import SwiftUI
 
@@ -8,10 +9,13 @@ struct WeeklyPlanOverviewView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
-                ForEach(mealService.weeklyPlan.indices, id: \.self) { idx in
-                    let dayPlan = mealService.weeklyPlan[idx]
-                    DayCardView(dayIndex: idx, plan: dayPlan)
+                // Wrap the integer range in an Array so SwiftUI
+                // picks the Data-based ForEach initializer.
+                ForEach(Array(0..<mealService.weeklyPlan.count), id: \.self) { idx in
+                    DayCardView(dayIndex: idx,
+                                plan: mealService.weeklyPlan[idx])
                         .onTapGesture {
+                            // Directly assign to the @Published var
                             mealService.selectedDay = idx
                         }
                 }
@@ -21,42 +25,43 @@ struct WeeklyPlanOverviewView: View {
     }
 }
 
+
 struct DayCardView: View {
     let dayIndex: Int
     let plan: MealPlanDay
 
-    // pick the breakfast image (if you add images later)
-    var image: Image {
-        // placeholder for now
-        Image(systemName: "photo")
-    }
-
-    var macros: (cals: Int, prot: Int, carbs: Int, fat: Int) {
-        let arr = [plan.breakfast, plan.snack1, plan.lunch, plan.snack2, plan.dinner]
-        let cals = arr.compactMap(\.calories).reduce(0, +)
-        let prot = arr.compactMap(\.protein).reduce(0, +)
-        let carbs = arr.compactMap(\.carbs).reduce(0, +)
-        let fat  = arr.compactMap(\.fat).reduce(0, +)
-        return (cals, prot, carbs, fat)
+    /// Sums up this day’s macros across all five slots.
+    private var macros: (cals: Int, prot: Int, carbs: Int, fat: Int) {
+        let meals = [
+            plan.breakfast,
+            plan.snack1,
+            plan.lunch,
+            plan.snack2,
+            plan.dinner
+        ]
+        return (
+            meals.reduce(0) { $0 + ($1.calories ?? 0) },
+            meals.reduce(0) { $0 + ($1.protein  ?? 0) },
+            meals.reduce(0) { $0 + ($1.carbs    ?? 0) },
+            meals.reduce(0) { $0 + ($1.fat      ?? 0) }
+        )
     }
 
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: 8) {
+                // Day of the week
                 Text(Calendar.current.shortWeekdaySymbols[dayIndex % 7])
                     .font(.headline)
-                image
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 120, height: 80)
-                    .clipped()
-                    .cornerRadius(8)
-                HStack {
-                    Text("\(macros.cals) kcal").font(.caption)
-                    Spacer()
-                    Text("\(macros.prot)P/\(macros.carbs)C/\(macros.fat)F")
-                        .font(.caption2)
+
+                // Macro summary: Protein - Fat - Carbs - Calories
+                HStack(spacing: 12) {
+                    Text("\(macros.prot)P")
+                    Text("\(macros.fat)F")
+                    Text("\(macros.carbs)C")
+                    Text("\(macros.cals)kcal")
                 }
+                .font(.caption)
             }
             .frame(width: 140)
         }

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3021D4BB2DE543AC00AF45A1 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 3021D4BA2DE543AC00AF45A1 /* OpenAI */; };
+		3021D4BD2DE543DD00AF45A1 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 3021D4BC2DE543DD00AF45A1 /* OpenAI */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3021D47A2DE53BDE00AF45A1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3021D4BB2DE543AC00AF45A1 /* OpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3021D4BD2DE543DD00AF45A1 /* OpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +132,7 @@
 			);
 			name = newFoodTracker;
 			packageProductDependencies = (
+				3021D4BA2DE543AC00AF45A1 /* OpenAI */,
 			);
 			productName = newFoodTracker;
 			productReference = 3021D4682DE53BDC00AF45A1 /* newFoodTracker.app */;
@@ -148,6 +156,7 @@
 			);
 			name = newFoodTrackerTests;
 			packageProductDependencies = (
+				3021D4BC2DE543DD00AF45A1 /* OpenAI */,
 			);
 			productName = newFoodTrackerTests;
 			productReference = 3021D4792DE53BDE00AF45A1 /* newFoodTrackerTests.xctest */;
@@ -208,6 +217,9 @@
 			);
 			mainGroup = 3021D45F2DE53BDB00AF45A1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3021D4B92DE542C800AF45A1 /* XCRemoteSwiftPackageReference "OpenAI" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3021D4692DE53BDC00AF45A1 /* Products */;
 			projectDirPath = "";
@@ -608,6 +620,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3021D4B92DE542C800AF45A1 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3021D4BA2DE543AC00AF45A1 /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3021D4B92DE542C800AF45A1 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
+		};
+		3021D4BC2DE543DD00AF45A1 /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3021D4B92DE542C800AF45A1 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3021D4602DE53BDC00AF45A1 /* Project object */;
 }

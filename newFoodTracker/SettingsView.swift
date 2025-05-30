@@ -1,20 +1,18 @@
+// SettingsView.swift
+// newFoodTracker
 //
-//  SettingsView.swift
-//  newFoodTracker
-//
-//  Created by You on 2025-05-28.
-//
+// Presents the user’s personal & lifestyle settings on first launch (and from Settings later).
 
 import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var userProfile: UserProfile
     @EnvironmentObject var mealService: MealPlanService
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
 
     // Picker options
-    private let genders = ["Other", "Male", "Female"]
-    private let exerciseLevels = [
+    private let genderOptions = ["Male", "Female", "Other"]
+    private let exerciseOptions = [
         "None",
         "Light (1-2 days)",
         "Moderate (3-4 days)",
@@ -25,52 +23,77 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Weight & Height")) {
+                Section(header: Text("Personal Info")) {
                     HStack {
-                        TextField("Weight", text: $userProfile.weight)
+                        Text("Weight")
+                        TextField("e.g. 70", text: $userProfile.weight)
                             .keyboardType(.decimalPad)
-                        Toggle("kg", isOn: $userProfile.isMetric)
+                            .multilineTextAlignment(.trailing)
+                        Picker("", selection: $userProfile.isMetric) {
+                            Text("kg").tag(true)
+                            Text("lbs").tag(false)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .frame(width: 120)
                     }
-                    HStack {
-                        TextField("Height", text: $userProfile.height)
-                            .keyboardType(.decimalPad)
-                        Toggle("cm", isOn: $userProfile.heightIsMetric)
-                    }
-                }
 
-                Section(header: Text("Age & Gender")) {
-                    TextField("Age", text: $userProfile.age)
-                        .keyboardType(.numberPad)
+                    HStack {
+                        Text("Height")
+                        TextField("e.g. 170", text: $userProfile.height)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                        Picker("", selection: $userProfile.heightIsMetric) {
+                            Text("cm").tag(true)
+                            Text("in").tag(false)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .frame(width: 120)
+                    }
+
+                    HStack {
+                        Text("Age")
+                        TextField("30", text: $userProfile.age)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                    }
+
                     Picker("Gender", selection: $userProfile.gender) {
-                        ForEach(genders, id: \.self) { Text($0) }
+                        ForEach(genderOptions, id: \.self) { option in
+                            Text(option).tag(option)
+                        }
                     }
-                    .pickerStyle(SegmentedPickerStyle())
+                    .pickerStyle(MenuPickerStyle())
                 }
 
-                Section(header: Text("Activity & Goal")) {
+                Section(header: Text("Lifestyle")) {
                     Picker("Exercise Level", selection: $userProfile.exerciseLevel) {
-                        ForEach(exerciseLevels, id: \.self) { Text($0) }
+                        ForEach(exerciseOptions, id: \.self) { option in
+                            Text(option).tag(option)
+                        }
                     }
                     .pickerStyle(MenuPickerStyle())
 
                     Picker("Goal", selection: $userProfile.goal) {
-                        ForEach(goalOptions, id: \.self) { Text($0) }
+                        ForEach(goalOptions, id: \.self) { option in
+                            Text(option).tag(option)
+                        }
                     }
                     .pickerStyle(MenuPickerStyle())
 
                     Toggle("Extra Protein Focus", isOn: $userProfile.focusProtein)
                 }
-
-                Section {
-                    Button("Save") {
-                        // 1) compute macros
+            }
+            .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        // 1) Recalculate macros
                         userProfile.calculateMacros()
-                        // 2) regenerate plan
+                        // 2) Rebuild the meal plan
                         mealService.regeneratePlan()
-                        // 3) dismiss settings
-                        dismiss()
+                        // 3) Dismiss
+                        presentationMode.wrappedValue.dismiss()
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
                     .disabled(
                         userProfile.weight.isEmpty ||
                         userProfile.height.isEmpty ||
@@ -81,15 +104,6 @@ struct SettingsView: View {
                     )
                 }
             }
-            .navigationTitle("Setup Your Profile")
         }
-    }
-}
-
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
-            .environmentObject(UserProfile())
-            .environmentObject(MealPlanService())
     }
 }

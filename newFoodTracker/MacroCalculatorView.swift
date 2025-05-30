@@ -1,3 +1,10 @@
+//
+//  MacroCalculatorView.swift
+//  newFoodTracker
+//
+//  Created by Roman Bystriakov on 27/5/25.
+//
+
 // MacroCalculatorView.swift
 
 import SwiftUI
@@ -53,6 +60,12 @@ struct MacroCalculatorView: View {
     var carbGoal:    Double { calorieGoal * carbPct    / 4 }
     var fatGoal:     Double { calorieGoal * fatPct     / 9 }
 
+    private func progressColor(_ fraction: Double) -> Color {
+        if fraction < 0.9 { return .yellow }
+        else if fraction <= 1.1 { return .green }
+        else { return .red }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -63,22 +76,26 @@ struct MacroCalculatorView: View {
                     HStack { Text("Calories"); Spacer()
                             Text("\(Int(consumedCals)) / \(Int(calorieGoal)) kcal") }
                     ProgressView(value: consumedCals, total: calorieGoal)
+                        .accentColor(progressColor(consumedCals / calorieGoal))
                 }
 
                 Group {
                     HStack { Text("Protein"); Spacer()
                             Text("\(Int(consumedProtein)) / \(Int(proteinGoal)) g") }
                     ProgressView(value: consumedProtein, total: proteinGoal)
+                        .accentColor(progressColor(consumedProtein / proteinGoal))
                 }
                 Group {
                     HStack { Text("Carbs"); Spacer()
                             Text("\(Int(consumedCarbs)) / \(Int(carbGoal)) g") }
                     ProgressView(value: consumedCarbs, total: carbGoal)
+                        .accentColor(progressColor(consumedCarbs / carbGoal))
                 }
                 Group {
                     HStack { Text("Fat"); Spacer()
                             Text("\(Int(consumedFat)) / \(Int(fatGoal)) g") }
                     ProgressView(value: consumedFat, total: fatGoal)
+                        .accentColor(progressColor(consumedFat / fatGoal))
                 }
 
                 Divider().padding(.vertical)

@@ -2,13 +2,16 @@ import SwiftUI
 import PhotosUI
 
 struct AddRecipeView: View {
-    @EnvironmentObject var recipeService: RecipeService
+    @EnvironmentObject private var recipeService: RecipeService    // ← must have this
+
     @State private var mode = 0
     @State private var name = ""
     @State private var ingredientsText = ""
     @State private var instructions = ""
     @State private var freeform = ""
-    @State private var pickedImage: UIImage?
+
+    @State private var photoPickerItem: PhotosPickerItem? = nil
+    @State private var pickedImage: UIImage? = nil
     @State private var imageDescription = ""
     @State private var isLoading = false
 
@@ -24,48 +27,99 @@ struct AddRecipeView: View {
 
                 if mode == 0 {
                     Section("Manual Entry") {
-                        TextField("Name", text: $name)
-                        TextField("Ingredients (comma-sep)", text: $ingredientsText)
-                        TextEditor(text: $instructions)
-                            .frame(height: 120)
-                        Button("Save") { saveManual() }
-                    }
+                        VStack(spacing: 12) {
+                            TextField("Name", text: $name)
+                            TextField("Ingredients (comma-sep)", text: $ingredientsText)
+                            TextEditor(text: $instructions)
+                                .frame(height: 120)
 
-                } else if mode == 1 {
-                    Section("Paste your recipe text") {
-                        TextEditor(text: $freeform)
-                            .frame(height: 150)
-                        Button {
-                            isLoading = true
-                            recipeService.addFromText(freeform) { _ in
-                                isLoading = false
+                            Button(action: saveManual) {
+                                Text("Save")
+                                    .frame(maxWidth: .infinity)
                             }
-                        } label: {
-                            Label(isLoading ? "Parsing…" : "Parse & Save",
-                                  systemImage: isLoading ? "hourglass" : "arrow.turn.up.right")
+                            .disabled(
+                                name.isEmpty ||
+                                ingredientsText.isEmpty ||
+                                instructions.isEmpty
+                            )
                         }
                     }
+                }
+                else if mode == 1 {
+                    Section("Paste Your Recipe Text") {
+                        VStack(spacing: 12) {
+                            TextEditor(text: $freeform)
+                                .frame(height: 150)
 
-                } else {
+                            Button {
+                                isLoading = true
+                                recipeService.addFromText(freeform) { _ in
+                                    isLoading = false
+                                }
+                            } label: {
+                                Label(
+                                    isLoading ? "Parsing…" : "Parse & Save",
+                                    systemImage: isLoading
+                                        ? "hourglass"
+                                        : "arrow.turn.up.right"
+                                )
+                                .frame(maxWidth: .infinity)
+                            }
+                            .disabled(freeform.isEmpty)
+                        }
+                    }
+                }
+                else {
                     Section("Pick an Image") {
-                        PhotosPicker(
-                            selection: $pickedImage,
-                            matching: .images,
-                            photoLibrary: .shared()
-                        ) {
-                            Text(pickedImage == nil ? "Select Photo" : "Change Photo")
-                        }
-                        if let img = pickedImage {
-                            Image(uiImage: img).resizable()
-                                .scaledToFit().frame(height: 150)
-                        }
-                        TextField("Description (optional)", text: $imageDescription)
-                        Button("Analyze & Save") {
-                            guard let img = pickedImage else { return }
-                            isLoading = true
-                            recipeService.addFromImage(img, description: imageDescription) { _ in
-                                isLoading = false
+                        VStack(spacing: 12) {
+                            PhotosPicker(
+                                selection: $photoPickerItem,
+                                matching: .images,
+                                photoLibrary: .shared()
+                            ) {
+                                Text(
+                                    pickedImage == nil
+                                        ? "Select Photo"
+                                        : "Change Photo"
+                                )
                             }
+                            .onChange(of: photoPickerItem) { newItem in
+                                Task {
+                                    if let data = try?
+                                        await newItem?
+                                            .loadTransferable(type: Data.self),
+                                       let uiImg = UIImage(data: data) {
+                                        pickedImage = uiImg
+                                    }
+                                }
+                            }
+
+                            if let img = pickedImage {
+                                Image(uiImage: img)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 150)
+                            }
+
+                            TextField(
+                                "Description (optional)",
+                                text: $imageDescription
+                            )
+
+                            Button {
+                                guard let img = pickedImage else { return }
+                                isLoading = true
+                                recipeService.addFromImage(
+                                    img,
+                                    description: imageDescription
+                                ) { _ in
+                                    isLoading = false
+                                }
+                            } label: {
+                                Text("Analyze & Save")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .disabled(pickedImage == nil)
                         }
                     }
                 }
@@ -75,12 +129,13 @@ struct AddRecipeView: View {
     }
 
     private func saveManual() {
-        let ingr = ingredientsText
+        let ingredients = ingredientsText
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
+
         recipeService.addManual(
             name: name,
-            ingredients: ingr,
+            ingredients: ingredients,
             instructions: instructions
         ) { _ in }
     }

@@ -1,3 +1,11 @@
+//
+//  ShoppingListGenerator.swift
+//  newFoodTracker
+//
+//  Created by Roman Bystriakov on 26/5/25.
+//
+
+
 import Foundation
 
 class ShoppingListGenerator {

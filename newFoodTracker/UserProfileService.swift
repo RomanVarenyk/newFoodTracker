@@ -2,6 +2,14 @@
 //  UserProfileService.swift
 //  newFoodTracker
 //
+//  Created by Roman Bystriakov on 28/5/25.
+//
+
+
+//
+//  UserProfileService.swift
+//  newFoodTracker
+//
 
 import Foundation
 import Combine
