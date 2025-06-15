@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>APITOKEN</key>
+	<string>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</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
