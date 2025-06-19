@@ -2,6 +2,10 @@ import Foundation
 
 private let kWeeklyPlanKey  = "weeklyPlanKey"
 private let kSelectedDayKey = "selectedDayKey"
+private let planFileURL: URL = {
+    FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("weeklyPlan.json")
+}()
 
 class MealPlanService: ObservableObject {
     @Published var weeklyPlan: [MealPlanDay] = [] {
@@ -12,8 +16,11 @@ class MealPlanService: ObservableObject {
     }
 
     init() {
-        if let data = UserDefaults.standard.data(forKey: kWeeklyPlanKey),
+        if let data = try? Data(contentsOf: planFileURL),
            let plan = try? JSONDecoder().decode([MealPlanDay].self, from: data) {
+            weeklyPlan = plan
+        } else if let data = UserDefaults.standard.data(forKey: kWeeklyPlanKey),
+                  let plan = try? JSONDecoder().decode([MealPlanDay].self, from: data) {
             weeklyPlan = plan
         } else {
             regeneratePlan()
@@ -30,6 +37,7 @@ class MealPlanService: ObservableObject {
     private func savePlan() {
         if let data = try? JSONEncoder().encode(weeklyPlan) {
             UserDefaults.standard.set(data, forKey: kWeeklyPlanKey)
+            try? data.write(to: planFileURL)
         }
     }
 
