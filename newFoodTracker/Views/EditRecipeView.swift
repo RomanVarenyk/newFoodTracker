@@ -167,9 +167,9 @@ struct EditRecipeView: View {
                 .onDisappear {
                     if let img = selectedImage,
                        let data = img.jpegData(compressionQuality: 0.8) {
-                        OpenAIService.shared.parseRecipeFromImage(imageData: data) { result in
-                            switch result {
-                            case .success(let info):
+                        Task {
+                            do {
+                                let info = try await OpenAIService.shared.parseRecipeFromImage(imageData: data)
                                 DispatchQueue.main.async {
                                     name = info.name
                                     ingredientEntries = info.ingredients.map { raw in
@@ -188,8 +188,8 @@ struct EditRecipeView: View {
                                     carbs = "\(info.carbs)"
                                     fat = "\(info.fat)"
                                 }
-                            case .failure:
-                                break
+                            } catch {
+                                // ignore for now
                             }
                         }
                     }

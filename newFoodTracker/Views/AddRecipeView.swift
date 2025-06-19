@@ -125,9 +125,9 @@ struct AddRecipeView: View {
                             Instructions: \(newRecipe.instructions)
                             """
                             print("ChatGPT Request for macros:\n\(prompt)")
-                            OpenAIService.shared.parseRecipe(fromText: prompt) { result in
-                                switch result {
-                                case .success(let parsed):
+                            Task {
+                                do {
+                                    let parsed = try await OpenAIService.shared.parseRecipe(fromText: prompt)
                                     print("ChatGPT Response for macros: calories=\(parsed.calories ?? 0), protein=\(parsed.protein ?? 0), carbs=\(parsed.carbs ?? 0), fat=\(parsed.fat ?? 0)")
                                     newRecipe.calories = parsed.calories
                                     newRecipe.protein = parsed.protein
@@ -135,8 +135,8 @@ struct AddRecipeView: View {
                                     newRecipe.fat = parsed.fat
                                     recipeService.recipes.append(newRecipe)
                                     dismiss()
-                                case .failure(let err):
-                                    print("ChatGPT Error: \(err.localizedDescription)")
+                                } catch {
+                                    print("ChatGPT Error: \(error.localizedDescription)")
                                     recipeService.recipes.append(newRecipe)
                                     dismiss()
                                 }
@@ -161,25 +161,19 @@ struct AddRecipeView: View {
                     // Send image to ChatGPT for recipe parsing
                     if let data = img.jpegData(compressionQuality: 0.8) {
                         print("ChatGPT Request for image recipe parsing")
-                        OpenAIService.shared.parseRecipeFromImage(imageData: data) { result in
-                            switch result {
-                            case .success(let info):
+                        Task {
+                            do {
+                                let info = try await OpenAIService.shared.parseRecipeFromImage(imageData: data)
                                 print("ChatGPT Parsed Recipe from Image: \(info)")
-                                // Populate fields
                                 DispatchQueue.main.async {
                                     name = info.name
-                                    // Map ingredients into IngredientEntry rows, parsing amount/unit/name
                                     ingredientEntries = info.ingredients.map { raw in
-                                        // Split into up to three parts: amount, unit, and name
                                         let parts = raw.split(separator: " ", maxSplits: 2, omittingEmptySubsequences: true).map { String($0) }
                                         if parts.count >= 3 {
-                                            // amount = parts[0], unit = parts[1], name = parts[2]
                                             return IngredientEntry(name: parts[2], amount: parts[0], unit: parts[1])
                                         } else if parts.count == 2 {
-                                            // amount = parts[0], unit = parts[1], name empty
                                             return IngredientEntry(name: "", amount: parts[0], unit: parts[1])
                                         } else {
-                                            // fallback: put entire string in name
                                             return IngredientEntry(name: raw, amount: "", unit: "")
                                         }
                                     }
@@ -189,8 +183,8 @@ struct AddRecipeView: View {
                                     carbs = "\(info.carbs)"
                                     fat = "\(info.fat)"
                                 }
-                            case .failure(let err):
-                                print("ChatGPT Parse Recipe Error: \(err.localizedDescription)")
+                            } catch {
+                                print("ChatGPT Parse Recipe Error: \(error.localizedDescription)")
                             }
                         }
                     }

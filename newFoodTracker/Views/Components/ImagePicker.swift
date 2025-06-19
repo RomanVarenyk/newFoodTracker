@@ -1,13 +1,6 @@
 import SwiftUI
 import UIKit
 
-// Helper struct for dynamic ingredient rows
-struct IngredientEntry: Identifiable {
-    let id = UUID()
-    var name: String = ""
-    var amount: String = ""
-    var unit: String = ""
-}
 
 // ImagePicker for camera integration
 struct ImagePicker: UIViewControllerRepresentable {

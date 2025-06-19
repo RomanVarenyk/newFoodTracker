@@ -1,3 +1,5 @@
+import Foundation
+import UIKit
 // MARK: - OpenAIService
 
 final class OpenAIService {
@@ -75,6 +77,33 @@ final class OpenAIService {
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
+                return
+            }
+            if let http = response as? HTTPURLResponse,
+               !(200...299).contains(http.statusCode) {
+                completion(.failure(NSError(
+                    domain: "OpenAIService",
+                    code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(http.statusCode)"]
+                )))
+                return
+            }
+            if let http = response as? HTTPURLResponse,
+               !(200...299).contains(http.statusCode) {
+                completion(.failure(NSError(
+                    domain: "OpenAIService",
+                    code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(http.statusCode)"]
+                )))
+                return
+            }
+            if let http = response as? HTTPURLResponse,
+               !(200...299).contains(http.statusCode) {
+                completion(.failure(NSError(
+                    domain: "OpenAIService",
+                    code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(http.statusCode)"]
+                )))
                 return
             }
             guard let data = data else {
@@ -325,5 +354,38 @@ Strictly output only the JSON with no additional text.
                 completion(.failure(error))
             }
         }.resume()
+    }
+
+    // MARK: - Swift Concurrency Wrappers
+    func parseRecipe(fromText text: String) async throws -> Recipe {
+        try await withCheckedThrowingContinuation { cont in
+            parseRecipe(fromText: text) { result in
+                cont.resume(with: result)
+            }
+        }
+    }
+
+    func analyzeImageNutrition(imageData: Data, description: String?) async throws -> (calories: Int, protein: Int, carbs: Int, fat: Int) {
+        try await withCheckedThrowingContinuation { cont in
+            analyzeImageNutrition(imageData: imageData, description: description) { result in
+                cont.resume(with: result)
+            }
+        }
+    }
+
+    func parseRecipeFromImage(imageData: Data) async throws -> (
+        name: String,
+        ingredients: [String],
+        instructions: String,
+        calories: Int,
+        protein: Int,
+        carbs: Int,
+        fat: Int
+    ) {
+        try await withCheckedThrowingContinuation { cont in
+            parseRecipeFromImage(imageData: imageData) { result in
+                cont.resume(with: result)
+            }
+        }
     }
 }
