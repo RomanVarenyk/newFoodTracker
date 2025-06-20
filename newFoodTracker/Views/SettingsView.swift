@@ -93,7 +93,15 @@ struct SettingsView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
 
-                    Toggle("Extra Protein Focus", isOn: $userProfile.focusProtein)
+                Toggle("Extra Protein Focus", isOn: $userProfile.focusProtein)
+                }
+                .listRowBackground(Color.cardBackground)
+                .cornerRadius(8)
+
+                Section(header: Text("Meal Plan").foregroundColor(Color.primary)) {
+                    Stepper(value: $userProfile.planLength, in: 3...14) {
+                        Text("Plan Length: \(userProfile.planLength) days")
+                    }
                 }
                 .listRowBackground(Color.cardBackground)
                 .cornerRadius(8)

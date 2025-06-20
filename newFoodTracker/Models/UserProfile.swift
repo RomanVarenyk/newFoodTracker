@@ -30,6 +30,10 @@ class UserProfile: ObservableObject {
         didSet { UserDefaults.standard.set(focusProtein, forKey: "focusProtein") }
     }
 
+    @Published var planLength: Int = UserDefaults.standard.object(forKey: "planLength") as? Int ?? 7 {
+        didSet { UserDefaults.standard.set(planLength, forKey: "planLength") }
+    }
+
     @Published var calorieGoal: Int = 0
     @Published var proteinGoal: Int = 0
     @Published var carbsGoal: Int = 0
@@ -39,6 +43,7 @@ class UserProfile: ObservableObject {
         // Trigger didSet on load
         _ = weight; _ = isMetric; _ = height; _ = heightIsMetric
         _ = age; _ = gender; _ = exerciseLevel; _ = goal; _ = focusProtein
+        _ = planLength
     }
 
     func calculateMacros() {

@@ -31,7 +31,7 @@ class MealPlanService: ObservableObject {
     func regeneratePlan() {
         let recipes = RecipeService.shared.recipes
         let profile = UserProfileService.shared.currentProfile
-        weeklyPlan = MealPlanner.generateWeeklyPlan(from: recipes, using: profile)
+        weeklyPlan = MealPlanner.generatePlan(days: profile.planLength, from: recipes, using: profile)
     }
 
     private func savePlan() {
