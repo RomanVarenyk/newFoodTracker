@@ -8,6 +8,7 @@ struct AddRecipeView: View {
     @State private var instructions = ""
     @State private var showingImagePicker = false
     @State private var selectedImage: UIImage?
+    @State private var showingScanner = false
     @State private var calories: String? = nil
     @State private var protein: String? = nil
     @State private var carbs: String? = nil
@@ -96,6 +97,10 @@ struct AddRecipeView: View {
                                 // Optionally handle denial (e.g., show an alert)
                             }
                         }
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    Button("Scan Barcode") {
+                        showingScanner = true
                     }
                     .buttonStyle(PrimaryButtonStyle())
                 }
@@ -191,6 +196,16 @@ struct AddRecipeView: View {
                 }
             }) {
                 ImagePicker(image: $selectedImage)
+            }
+            .sheet(isPresented: $showingScanner) {
+                if #available(iOS 16.0, *) {
+                    BarcodeScannerView { code in
+                        ingredientEntries.append(IngredientEntry(name: code))
+                    }
+                } else {
+                    Text("Barcode scanning requires iOS 16")
+                        .padding()
+                }
             }
         }
     }

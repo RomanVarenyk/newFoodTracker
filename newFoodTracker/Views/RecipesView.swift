@@ -4,11 +4,17 @@ struct RecipesView: View {
     @EnvironmentObject var recipeService: RecipeService
     @State private var showingEditRecipe = false
     @State private var recipeToEdit: Recipe? = nil
+    @State private var searchText: String = ""
+
+    private var filteredRecipes: [Recipe] {
+        if searchText.isEmpty { return recipeService.recipes }
+        return recipeService.recipes.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
 
     var body: some View {
         NavigationView {
             List {
-                ForEach(recipeService.recipes) { recipe in
+                ForEach(filteredRecipes) { recipe in
                     HStack {
                         Text(recipe.name)
                             .font(.headline)
@@ -31,6 +37,7 @@ struct RecipesView: View {
             .listStyle(PlainListStyle())
             .scrollContentBackground(.hidden)
             .background(Color.primaryBackground)
+            .searchable(text: $searchText, prompt: "Search Recipes")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {

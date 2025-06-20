@@ -1,9 +1,9 @@
 import Foundation
 
 struct MealPlanner {
-    /// Build a 7-day plan by cycling through the recipe list 5 slots/day.
-    static func generateWeeklyPlan(from recipes: [Recipe], using profile: UserProfile) -> [MealPlanDay] {
-        guard recipes.count >= 5 else { return [] }
+    /// Build a plan by cycling through the recipe list `days` times (5 slots/day).
+    static func generatePlan(days: Int, from recipes: [Recipe], using profile: UserProfile) -> [MealPlanDay] {
+        guard recipes.count >= 5, days > 0 else { return [] }
         var sorted = recipes
         if profile.focusProtein {
             sorted.sort { ($0.protein ?? 0) > ($1.protein ?? 0) }
@@ -11,7 +11,7 @@ struct MealPlanner {
             sorted.shuffle()
         }
         var plan: [MealPlanDay] = []
-        for day in 0..<7 {
+        for day in 0..<days {
             let daily = (0..<5).map { offset in
                 sorted[(day * 5 + offset) % sorted.count]
             }
@@ -25,5 +25,9 @@ struct MealPlanner {
             plan.append(pd)
         }
         return plan
+    }
+
+    static func generateWeeklyPlan(from recipes: [Recipe], using profile: UserProfile) -> [MealPlanDay] {
+        generatePlan(days: 7, from: recipes, using: profile)
     }
 }
